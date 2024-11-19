@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<nav th:fragment="navbar" class="bg-white shadow-md">
+  <div class="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex">
+        <div class="flex-shrink-0 flex items-center">
+          <span class="text-xl font-semibold text-gray-800">Laboratory work # 3</span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-10">
+        <div class="flex space-x-6">
+          <div class="flex space-x-0.5 pr-2">
+            <svg th:if="${showDot == 'h'}" xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="#000000" viewBox="0 0 256 256">
+              <path d="M156,128a28,28,0,1,1-28-28A28,28,0,0,1,156,128Z"></path>
+            </svg>
+            <a th:href="@{/main}" class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800">Home</a>
+          </div>
+          <div class="flex space-x-0.5">
+            <svg th:if="${showDot == 'p'}" xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="#000000" viewBox="0 0 256 256">
+              <path d="M156,128a28,28,0,1,1-28-28A28,28,0,0,1,156,128Z"></path>
+            </svg>
+            <a th:href="@{/patients}" class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800">Patients Table</a>
+          </div>
+          <div class="flex space-x-0.5">
+            <svg th:if="${showDot == 'v'}" xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="#000000" viewBox="0 0 256 256">
+              <path d="M156,128a28,28,0,1,1-28-28A28,28,0,0,1,156,128Z"></path>
+            </svg>
+            <a th:href="@{/visits}" class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800">Visits Table</a>
+          </div>
+        </div>
+        <form th:action="@{/logout}" method="post" class="inline">
+          <button type="submit"
+                  class="ml-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Log out
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</nav>
+</html>
