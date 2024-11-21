@@ -155,12 +155,13 @@
                     <a th:href="@{/visits/update/{id}(id=${visit.id})}"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Update</a>
                     <a href="#"
-                       th:onclick="'deleteAppointment(' + ${visit.id} + ', event)'"
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Delete</a>
+                       class="delete-appointment block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                       th:data-id="${visit.id}">Delete</a>
                   </div>
                 </div>
               </div>
             </td>
+
           </tr>
           </tbody>
         </table>
@@ -281,9 +282,36 @@
   }
 `;
   document.head.appendChild(styleSheet);
+  let appointmentToDelete = null;
+
+  function showConfirmDialog() {
+    document.getElementById('confirmDialog').classList.remove('hidden');
+  }
+
+  function hideConfirmDialog() {
+    document.getElementById('confirmDialog').classList.add('hidden');
+  }
+
+  function closeAllDropdowns() {
+    document.querySelectorAll('.action-dropdown').forEach(dropdown => {
+      dropdown.classList.add('hidden');
+    });
+  }
+
+  function deleteAppointment(id) {
+    appointmentToDelete = id;
+    showConfirmDialog();
+    closeAllDropdowns();
+  }
 
   document.addEventListener('DOMContentLoaded', function() {
-    let appointmentToDelete = null;
+    document.addEventListener('click', function(e) {
+      if (e.target.matches('.delete-appointment')) {
+        e.preventDefault();
+        const id = e.target.getAttribute('data-id');
+        deleteAppointment(id);
+      }
+    });
 
     // Filter Elements
     const costFilterButton = document.getElementById('openCostFilter');
@@ -419,12 +447,7 @@
       }
     }
 
-    function deleteAppointment(id, event) {
-      event.preventDefault();
-      appointmentToDelete = id;
-      showConfirmDialog();
-      closeAllDropdowns();
-    }
+
 
     // UI Helper Functions
     function showToast(message, type = 'success') {
@@ -447,19 +470,9 @@
       }, 3000);
     }
 
-    function showConfirmDialog() {
-      document.getElementById('confirmDialog').classList.remove('hidden');
-    }
 
-    function hideConfirmDialog() {
-      document.getElementById('confirmDialog').classList.add('hidden');
-    }
 
-    function closeAllDropdowns() {
-      document.querySelectorAll('.action-dropdown').forEach(dropdown => {
-        dropdown.classList.add('hidden');
-      });
-    }
+
 
     // Event Listeners for Filters
     costFilterButton.addEventListener('click', function(event) {

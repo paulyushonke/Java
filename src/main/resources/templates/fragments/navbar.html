@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <nav th:fragment="navbar" class="bg-white shadow-md">
   <div class="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between h-16">
@@ -29,15 +29,57 @@
             <a th:href="@{/visits}" class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800">Visits Table</a>
           </div>
         </div>
-        <form th:action="@{/logout}" method="post" class="inline">
-          <button type="submit"
-                  class="ml-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Log out
+
+        <!-- User Dropdown -->
+        <div class="relative">
+          <button id="userMenuButton"
+                  class="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 focus:outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="text-gray-700">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
           </button>
-        </form>
+
+          <!-- Dropdown menu -->
+          <div id="userMenu"
+               class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+            <div class="px-4 py-2 border-b border-gray-200">
+              <p class="text-sm font-medium text-gray-900" sec:authentication="name">Username</p>
+              <p class="text-sm text-gray-500" sec:authentication="principal.authorities">Role</p>
+            </div>
+            <form th:action="@{/logout}" method="post">
+              <button type="submit"
+                      class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:outline-none">
+                Log out
+              </button>
+            </form>
+          </div>
+        </div>
 
       </div>
     </div>
   </div>
+
+  <!-- Dropdown Toggle Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const userMenuButton = document.getElementById('userMenuButton');
+      const userMenu = document.getElementById('userMenu');
+
+      userMenuButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        userMenu.classList.toggle('hidden');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userMenu.contains(e.target) && !userMenuButton.contains(e.target)) {
+          userMenu.classList.add('hidden');
+        }
+      });
+    });
+  </script>
 </nav>
 </html>
