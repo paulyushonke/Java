@@ -77,6 +77,7 @@ public class DentistryPatientController {
         if (patient == null) {
             return "redirect:/patients";
         }
+        System.out.println("Patient DR: " + patient.getDr()); //
         model.addAttribute("patient", patient);
         model.addAttribute("today", LocalDate.now());
         return "UpdatePatient";

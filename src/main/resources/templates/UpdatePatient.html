@@ -40,12 +40,15 @@
 
             <div class="space-y-2">
                 <label for="dr" class="block text-sm font-medium text-gray-700">Birthday</label>
-                <input type="date" id="dr" th:field="*{dr}" min="1900-01-01"
-                       th:max="${today}" required
+                <input type="date" id="dr"
+                       name="dr"
+                       th:attr="value=${#temporals.format(patient.dr, 'yyyy-MM-dd')}"
+                       min="1900-01-01"
+                       th:max="${today}"
+                       required
                        class="p-2 block w-full rounded border border-zinc-200">
                 <span class="text-xs text-red-600" th:if="${#fields.hasErrors('dr')}" th:errors="*{dr}"></span>
             </div>
-
             <div>
                 <label class="block text-sm font-medium text-gray-700">Gender</label>
                 <div class="mt-2 space-x-4">

@@ -10,13 +10,115 @@
 
   <title th:text="'Appointments of ' + ${patient.name} + ' ' + ${patient.surname}">Appointments</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .relative.inline-block {
+      position: relative;
+    }
+
+    #costFilterDropdown, #dateFilterDropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      z-index: 50;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      min-width: 200px;
+    }
+
+    th.sort-asc::after {
+      content: ' ↑';
+    }
+
+    th.sort-desc::after {
+      content: ' ↓';
+    }
+  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="flex flex-col items-center justify-center p-4 space-y-4">
-  <div class="pt-6 text-3xl font-semibold" th:text="'Appointments of ' + ${patient.name} + ' ' + ${patient.surname}">Appointments</div>
+  <div class="pt-6 text-3xl font-semibold pb-4" th:text="'Appointments of ' + ${patient.name} + ' ' + ${patient.surname}">Appointments</div>
+  <div class="w-full max-w-6xl flex justify-between items-center mb-4">
+    <div class="flex space-x-2">
+      <!-- Doctor Code Search -->
+      <input id="searchDoctorCode"
+             placeholder="Search by doctor code..."
+             class="flex h-10 w-[200px] rounded-md border border-input bg-background px-3 py-2 text-sm"/>
 
+      <!-- Service Description Search -->
+      <input id="searchService"
+             placeholder="Search by service..."
+             class="flex h-10 w-[250px] rounded-md border border-input bg-background px-3 py-2 text-sm"/>
+
+      <!-- Cost Range Filter -->
+      <div class="relative inline-block text-left">
+        <button id="openCostFilter" type="button"
+                class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
+          Cost Range
+          <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <div id="costFilterDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+          <div class="p-4">
+            <div class="space-y-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Min Cost:</label>
+                <input type="number" id="minCost" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="0">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Max Cost:</label>
+                <input type="number" id="maxCost" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="0">
+              </div>
+              <div class="pt-2">
+                <button id="applyCostFilter" class="w-full px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">Apply</button>
+                <button id="resetCostFilter" class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Date Range Filter -->
+      <div class="relative inline-block text-left">
+        <button id="openDateFilter" type="button"
+                class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none">
+          Visit Date
+          <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <div id="dateFilterDropdown" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+          <div class="p-4">
+            <div class="space-y-2">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">From:</label>
+                <input type="datetime-local" id="startDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">To:</label>
+                <input type="datetime-local" id="endDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+              </div>
+              <div class="pt-2">
+                <button id="applyDateFilter" class="w-full px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">Apply</button>
+                <button id="resetDateFilter" class="w-full mt-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a th:href="@{/visits/new}" class="ml-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+      Add New Visit
+    </a>
+  </div>
+
+  <!-- Table Section -->
   <div class="w-full max-w-6xl bg-white rounded-lg shadow-lg overflow-hidden">
     <div class="p-6 w-full">
       <div class="overflow-x-auto w-full">
@@ -29,7 +131,7 @@
             <th scope="col" class="px-6 py-3 cursor-pointer">Time of Visit</th>
             <th scope="col" class="px-6 py-3 cursor-pointer">Cost</th>
             <th scope="col" class="px-6 py-3 cursor-pointer">Payment</th>
-            <th scope="col" class="px-6 py-3 cursor-pointer">Actions</th>
+            <th scope="col" class="px-6 py-3">Actions</th>
           </tr>
           </thead>
           <tbody>
@@ -42,15 +144,13 @@
             <td class="px-6 py-4" th:text="${visit.payment}"></td>
             <td class="px-6 py-4 text-center">
               <div class="relative inline-block text-left">
-                <button class="inline-flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 focus:outline-none">
+                <button type="button" class="action-dropdown-button inline-flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 focus:outline-none">
                   <svg width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.625 2.5C8.625 3.12132 8.12132 3.625 7.5 3.625C6.87868 3.625 6.375 3.12132 6.375 2.5C6.375 1.87868 6.87868 1.375 7.5 1.375C8.12132 1.375 8.625 1.87868 8.625 2.5ZM8.625 7.5C8.625 8.12132 8.12132 8.625 7.5 8.625C6.87868 8.625 6.375 8.12132 6.375 7.5C6.375 6.87868 6.87868 6.375 7.5 6.375C8.12132 6.375 8.625 6.87868 8.625 7.5ZM7.5 13.625C8.12132 13.625 8.625 13.1213 8.625 12.5C8.625 11.8787 8.12132 11.375 7.5 11.375C6.87868 11.375 6.375 11.8787 6.375 12.5C6.375 13.1213 6.87868 13.625 7.5 13.625Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path>
                   </svg>
                 </button>
-                <!-- Updated dropdown positioning -->
                 <div th:id="'dropdown-appointment-' + ${visit.id}"
-                     class="hidden absolute right-0 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999] transform transition-all duration-100 ease-in-out"
-                     style="position: fixed;">  <!-- Added fixed positioning -->
+                     class="action-dropdown hidden absolute right-0 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                   <div class="py-1">
                     <a th:href="@{/visits/update/{id}(id=${visit.id})}"
                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Update</a>
@@ -139,170 +239,353 @@
 <script th:inline="javascript">
   /*<![CDATA[*/
   const contextPath = /*[[@{/}]]*/ '';
-  let appointmentToDelete = null;
 
-  function confirmDeleteAppointment() {
-    if (appointmentToDelete) {
-      const csrf = document.querySelector("meta[name='_csrf']").content;
-      const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
-
-      fetch(`${contextPath}visits/delete/${appointmentToDelete}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          [csrfHeader]: csrf
-        }
-      })
-              .then(response => {
-                if (response.ok) {
-                  const row = document.querySelector(`tr[data-id="${appointmentToDelete}"]`);
-                  if (row) {
-                    row.remove();
-                    showToast('Appointment deleted successfully', 'success');
-                    if (document.querySelectorAll('#appointmentsTable tbody tr').length === 0) {
-                      document.getElementById('noResults').classList.remove('hidden');
-                    }
-                  }
-                } else {
-                  return response.json().then(data => {
-                    throw new Error(data.message || 'Failed to delete appointment');
-                  });
-                }
-              })
-              .catch(error => {
-                showToast(error.message, 'error');
-              })
-              .finally(() => {
-                hideConfirmDialog();
-                appointmentToDelete = null;
-              });
-    }
+  // Add styles to the document
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+  .relative.inline-block {
+    position: relative;
   }
 
-  function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toastMessage');
-    toastMessage.textContent = message;
-
-    if (type === 'success') {
-      toast.querySelector('div').classList.remove('border-red-500');
-      toast.querySelector('div').classList.add('border-green-500');
-    } else if (type === 'error') {
-      toast.querySelector('div').classList.remove('border-green-500');
-      toast.querySelector('div').classList.add('border-red-500');
-    }
-
-    toast.classList.remove('hidden');
-
-    setTimeout(() => {
-      toast.classList.add('hidden');
-    }, 3000);
+  #costFilterDropdown, #dateFilterDropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
   }
 
-  function showConfirmDialog() {
-    document.getElementById('confirmDialog').classList.remove('hidden');
+  .action-dropdown {
+    position: fixed;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
   }
 
-  function hideConfirmDialog() {
-    document.getElementById('confirmDialog').classList.add('hidden');
+  .action-dropdown-button {
+    cursor: pointer;
   }
 
-  function closeAllDropdowns() {
-    document.querySelectorAll('[id^="dropdown-appointment-"]').forEach(dropdown => {
-      dropdown.classList.add('hidden');
-    });
+  th.sort-asc::after {
+    content: ' ↑';
   }
 
-  function deleteAppointment(id, event) {
-    event.preventDefault();
-    appointmentToDelete = id;
-    showConfirmDialog();
-    closeAllDropdowns();
+  th.sort-desc::after {
+    content: ' ↓';
   }
+`;
+  document.head.appendChild(styleSheet);
 
   document.addEventListener('DOMContentLoaded', function() {
-    const dropdownButtons = document.querySelectorAll('.relative.inline-block button');
+    let appointmentToDelete = null;
 
-    dropdownButtons.forEach(button => {
-      button.addEventListener('click', function(event) {
-        event.stopPropagation();
-        const dropdown = this.nextElementSibling;
-        const isVisible = !dropdown.classList.contains('hidden');
+    // Filter Elements
+    const costFilterButton = document.getElementById('openCostFilter');
+    const dateFilterButton = document.getElementById('openDateFilter');
+    const costFilterDropdown = document.getElementById('costFilterDropdown');
+    const dateFilterDropdown = document.getElementById('dateFilterDropdown');
+    const searchDoctorCode = document.getElementById('searchDoctorCode');
+    const searchService = document.getElementById('searchService');
 
-        // Close all other dropdowns first
-        closeAllDropdowns();
+    // Initialize Action Dropdowns
+    function initializeActionDropdowns() {
+      const actionButtons = document.querySelectorAll('.action-dropdown-button');
 
-        // Toggle current dropdown
-        if (isVisible) {
-          dropdown.classList.add('hidden');
-        } else {
-          // Get button position
-          const buttonRect = button.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
+      actionButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+          event.stopPropagation();
 
-          // Show dropdown
-          dropdown.classList.remove('hidden');
+          // Find the dropdown associated with this button
+          const dropdown = button.nextElementSibling;
+          const isVisible = !dropdown.classList.contains('hidden');
 
-          // Calculate dropdown height
-          const dropdownHeight = dropdown.offsetHeight;
+          // Close all other dropdowns first
+          closeAllDropdowns();
 
-          // Position dropdown
-          if (windowHeight - buttonRect.bottom > dropdownHeight + 10) {
-            // Enough space below - show dropdown below
-            dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
-            dropdown.style.bottom = 'auto';
-          } else {
-            // Not enough space below - show dropdown above
-            dropdown.style.bottom = `${windowHeight - buttonRect.top + window.scrollY}px`;
-            dropdown.style.top = 'auto';
+          if (!isVisible) {
+            const buttonRect = button.getBoundingClientRect();
+
+            dropdown.classList.remove('hidden');
+
+            // Position the dropdown
+            const dropdownTop = buttonRect.bottom + window.scrollY;
+            const dropdownLeft = buttonRect.right - dropdown.offsetWidth;
+
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = `${dropdownTop}px`;
+            dropdown.style.left = `${dropdownLeft}px`;
           }
+        });
+      });
+    }
 
-          // Position horizontally
-          dropdown.style.left = `${buttonRect.right - dropdown.offsetWidth}px`;
+    // Filtering Functions
+    function filterTable() {
+      const doctorCodeSearch = document.getElementById('searchDoctorCode').value.toLowerCase();
+      const serviceSearch = document.getElementById('searchService').value.toLowerCase();
+      const minCost = document.getElementById('minCost').value;
+      const maxCost = document.getElementById('maxCost').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      const rows = document.querySelectorAll('#appointmentsTable tbody tr');
+      let visibleRows = 0;
+
+      rows.forEach(row => {
+        const doctorCode = row.cells[1].textContent.toLowerCase();
+        const service = row.cells[2].textContent.toLowerCase();
+        const visitDate = new Date(row.cells[3].textContent);
+        const cost = parseFloat(row.cells[4].textContent);
+
+        let showRow = true;
+
+        if (doctorCodeSearch && !doctorCode.includes(doctorCodeSearch)) {
+          showRow = false;
         }
+
+        if (serviceSearch && !service.includes(serviceSearch)) {
+          showRow = false;
+        }
+
+        if (minCost && cost < parseFloat(minCost)) showRow = false;
+        if (maxCost && cost > parseFloat(maxCost)) showRow = false;
+
+        if (startDate && visitDate < new Date(startDate)) showRow = false;
+        if (endDate && visitDate > new Date(endDate)) showRow = false;
+
+        row.style.display = showRow ? '' : 'none';
+        if (showRow) visibleRows++;
       });
+
+      document.getElementById('noResults').classList.toggle('hidden', visibleRows > 0);
+    }
+
+    function resetCostFilter() {
+      document.getElementById('minCost').value = '';
+      document.getElementById('maxCost').value = '';
+      costFilterDropdown.classList.add('hidden');
+      filterTable();
+    }
+
+    function resetDateFilter() {
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      dateFilterDropdown.classList.add('hidden');
+      filterTable();
+    }
+
+    // Delete Functions
+    function confirmDeleteAppointment() {
+      if (appointmentToDelete) {
+        const csrf = document.querySelector("meta[name='_csrf']").content;
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+
+        fetch(`${contextPath}visits/delete/${appointmentToDelete}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrf
+          }
+        })
+                .then(response => {
+                  if (response.ok) {
+                    const row = document.querySelector(`tr[data-id="${appointmentToDelete}"]`);
+                    if (row) {
+                      row.remove();
+                      showToast('Appointment deleted successfully', 'success');
+                      if (document.querySelectorAll('#appointmentsTable tbody tr').length === 0) {
+                        document.getElementById('noResults').classList.remove('hidden');
+                      }
+                    }
+                  } else {
+                    return response.json().then(data => {
+                      throw new Error(data.message || 'Failed to delete appointment');
+                    });
+                  }
+                })
+                .catch(error => {
+                  showToast(error.message, 'error');
+                })
+                .finally(() => {
+                  hideConfirmDialog();
+                  appointmentToDelete = null;
+                });
+      }
+    }
+
+    function deleteAppointment(id, event) {
+      event.preventDefault();
+      appointmentToDelete = id;
+      showConfirmDialog();
+      closeAllDropdowns();
+    }
+
+    // UI Helper Functions
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      toastMessage.textContent = message;
+
+      if (type === 'success') {
+        toast.querySelector('div').classList.remove('border-red-500');
+        toast.querySelector('div').classList.add('border-green-500');
+      } else if (type === 'error') {
+        toast.querySelector('div').classList.remove('border-green-500');
+        toast.querySelector('div').classList.add('border-red-500');
+      }
+
+      toast.classList.remove('hidden');
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+
+    function showConfirmDialog() {
+      document.getElementById('confirmDialog').classList.remove('hidden');
+    }
+
+    function hideConfirmDialog() {
+      document.getElementById('confirmDialog').classList.add('hidden');
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.action-dropdown').forEach(dropdown => {
+        dropdown.classList.add('hidden');
+      });
+    }
+
+    // Event Listeners for Filters
+    costFilterButton.addEventListener('click', function(event) {
+      event.stopPropagation();
+      const isVisible = !costFilterDropdown.classList.contains('hidden');
+
+      costFilterDropdown.classList.add('hidden');
+      dateFilterDropdown.classList.add('hidden');
+
+      if (!isVisible) {
+        costFilterDropdown.classList.remove('hidden');
+      }
     });
 
-    // Delete button handlers
-    const deleteLinks = document.querySelectorAll('[onclick*="deleteAppointment"]');
-    deleteLinks.forEach(link => {
-      link.addEventListener('click', function(event) {
-        event.preventDefault();
-        const tr = this.closest('tr');
-        appointmentToDelete = tr.getAttribute('data-id');
-        showConfirmDialog();
-        closeAllDropdowns();
-      });
+    dateFilterButton.addEventListener('click', function(event) {
+      event.stopPropagation();
+      const isVisible = !dateFilterDropdown.classList.contains('hidden');
+
+      costFilterDropdown.classList.add('hidden');
+      dateFilterDropdown.classList.add('hidden');
+
+      if (!isVisible) {
+        dateFilterDropdown.classList.remove('hidden');
+      }
     });
 
-    // Confirmation dialog buttons
-    document.getElementById('confirmDeleteAppointment')
-            .addEventListener('click', confirmDeleteAppointment);
-    document.getElementById('cancelDeleteAppointment')
-            .addEventListener('click', hideConfirmDialog);
+    // Table Sorting
+    const headers = document.querySelectorAll('#appointmentsTable th');
+    headers.forEach((header, index) => {
+      if (index !== 6) { // Skip Actions column
+        header.addEventListener('click', () => {
+          const table = document.getElementById('appointmentsTable');
+          const rows = Array.from(table.querySelectorAll('tbody tr'));
+          const isAscending = !header.classList.contains('sort-asc');
 
-    // Toast close button
+          headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+          header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+
+          rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[index].textContent.trim();
+            const cellB = rowB.cells[index].textContent.trim();
+
+            if (index === 0) { // ID column
+              return isAscending ? parseInt(cellA) - parseInt(cellB) : parseInt(cellB) - parseInt(cellA);
+            } else if (index === 3) { // Date column
+              return isAscending ?
+                      new Date(cellA) - new Date(cellB) :
+                      new Date(cellB) - new Date(cellA);
+            } else if (index === 4 || index === 5) { // Cost and Payment columns
+              return isAscending ?
+                      parseFloat(cellA) - parseFloat(cellB) :
+                      parseFloat(cellB) - parseFloat(cellA);
+            } else {
+              return isAscending ?
+                      cellA.localeCompare(cellB) :
+                      cellB.localeCompare(cellA);
+            }
+          });
+
+          const tbody = table.querySelector('tbody');
+          rows.forEach(row => tbody.appendChild(row));
+        });
+      }
+    });
+
+    // Additional Event Listeners
+    searchDoctorCode.addEventListener('input', filterTable);
+    searchService.addEventListener('input', filterTable);
+
+    document.getElementById('applyCostFilter').addEventListener('click', () => {
+      filterTable();
+      costFilterDropdown.classList.add('hidden');
+    });
+
+    document.getElementById('resetCostFilter').addEventListener('click', resetCostFilter);
+
+    document.getElementById('applyDateFilter').addEventListener('click', () => {
+      filterTable();
+      dateFilterDropdown.classList.add('hidden');
+    });
+
+    document.getElementById('resetDateFilter').addEventListener('click', resetDateFilter);
+
+    document.getElementById('confirmDeleteAppointment').addEventListener('click', confirmDeleteAppointment);
+    document.getElementById('cancelDeleteAppointment').addEventListener('click', hideConfirmDialog);
+
     document.querySelector('#toast button').addEventListener('click', function() {
       document.getElementById('toast').classList.add('hidden');
     });
 
-    // Close dropdowns when clicking outside
+    // Global Click Handler
     document.addEventListener('click', function(event) {
-      if (!event.target.closest('.relative.inline-block')) {
+      const isFilterDropdown = event.target.closest('#costFilterDropdown, #dateFilterDropdown');
+      const isFilterButton = event.target.closest('#openCostFilter, #openDateFilter');
+      const isActionButton = event.target.closest('.action-dropdown-button');
+      const isActionDropdown = event.target.closest('.action-dropdown');
+
+      if (!isFilterDropdown && !isFilterButton) {
+        costFilterDropdown.classList.add('hidden');
+        dateFilterDropdown.classList.add('hidden');
+      }
+
+      if (!isActionButton && !isActionDropdown) {
         closeAllDropdowns();
       }
     });
 
-    // Close dropdowns when scrolling
-    document.addEventListener('scroll', closeAllDropdowns);
-
-    // Close dropdowns when pressing escape
+    // ESC Key Handler
     document.addEventListener('keydown', function(event) {
       if (event.key === 'Escape') {
+        costFilterDropdown.classList.add('hidden');
+        dateFilterDropdown.classList.add('hidden');
         closeAllDropdowns();
         hideConfirmDialog();
       }
     });
+
+    // Scroll Handler
+    document.addEventListener('scroll', () => {
+      costFilterDropdown.classList.add('hidden');
+      dateFilterDropdown.classList.add('hidden');
+      closeAllDropdowns();
+    });
+
+    // Initialize action dropdowns
+    initializeActionDropdowns();
   });
   /*]]>*/
 </script>
